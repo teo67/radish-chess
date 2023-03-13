@@ -1,0 +1,28 @@
+harvest tool(board, _imgWidth, outfile) {
+    if(board.length = 0) {
+        end
+    }
+    dig pallette plant new Drawing.Pallette(4)
+    pallette.set(0, new Drawing.RGB(0, 0, 0))
+    pallette.set(1, new Drawing.RGB(255, 255, 255))
+    pallette.set(2, new Drawing.RGB(108, 60, 0))
+    pallette.set(3, new Drawing.RGB(207, 169, 120))
+    dig numCols plant board[0].length
+    dig singleWidth plant math.floor(_imgWidth / numCols)
+    dig imgWidth plant singleWidth * numCols
+    dig imgHeight plant singleWidth * board.length
+    dig drawing plant new Drawing(imgWidth, imgHeight, pallette)
+    for(dig i plant 0, i < board.length, i++) {
+        if(board[i].length != numCols) {
+            throw "Chess boards must be rectangles!"
+        }
+        for(dig j plant 0, j < numCols, j++) {
+            drawing.rectangle(j * singleWidth, i * singleWidth, singleWidth, singleWidth, 
+                (i+j)%2, yes)
+            if(board[i][j] != null) {
+                board[i][j].drawOn(drawing, j * singleWidth, i * singleWidth, singleWidth)
+            }
+        }
+    }
+    drawing.render(outfile)
+}

@@ -1,0 +1,15 @@
+dig Piece plant import "Piece"
+harvest class after Piece {
+    constructor plant tool(color) super(color)
+    dig _move plant tool(x, y, targetX, targetY) {
+        dig xdiff plant math.abs(targetX - x)
+        dig ydiff plant math.abs(targetY - y)
+        harvest xdiff > 0 and ydiff > 0 and xdiff + ydiff = 3
+    }
+    dig drawOn plant tool(drawing p new Drawing(), x, y, size) {
+        drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, this.color, yes)
+        drawing.rectangle(x + 0.4 * size, y + 0.3 * size, 0.2 * size, 0.5 * size, this.color, yes)
+        drawing.polygon([x + 0.25 * size, x + 0.4 * size, x + 0.4 * size, x + 0.25 * size], 
+        [y + 0.5 * size, y + 0.3 * size, y + 0.6 * size, y + 0.6 * size], this.color, yes)
+    }
+}

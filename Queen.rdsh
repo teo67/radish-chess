@@ -1,0 +1,15 @@
+dig Bishop plant import "Bishop"
+dig Rook plant import "Rook"
+dig Piece plant import "Piece"
+harvest class after Piece {
+    constructor plant tool(color) super(color)
+    dig _move plant tool(x, y, targetX, targetY, board) {
+        harvest Bishop.prototype._move(x, y, targetX, targetY, board) or Rook.prototype._move(x, y, targetX, targetY, board)
+    }
+    dig drawOn plant tool(drawing p new Drawing(), x, y, size) {
+        drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, this.color, yes)
+        drawing.rectangle(x + 0.4 * size, y + 0.45 * size, 0.2 * size, 0.35 * size, this.color, yes)
+        drawing.polygon([x + 0.3 * size, x + 0.45 * size, x + 0.5 * size, x + 0.55 * size, x + 0.7 * size, x + 0.6 * size, x + 0.4 * size], 
+        [y + 0.25 * size, y + 0.35 * size, y + 0.2 * size, y + 0.35 * size, y + 0.25 * size, y + 0.45 * size, y + 0.45 * size], this.color, yes)
+    }
+}

@@ -1,0 +1,25 @@
+harvest class {
+    dig static WHITE plant 3 # color pallette numbers #
+    dig static BLACK plant 2
+    dig color
+    constructor plant tool(color) {
+        this.color plant color
+    }
+    dig protected check plant tool(a, b, get) {
+        dig direction plant b > a ? 1, -1
+        for(dig i plant a + direction, i != b, i += direction) {
+            if(get(i) != null) {
+                harvest no
+            }
+        }
+        harvest yes
+    }
+    dig _move plant tool no
+    dig move plant tool(x, y, targetX, targetY, board) {
+        if(board[targetY][targetX].color = this.color or (x = targetX and y = targetY)) {
+            harvest no
+        }
+        harvest this._move(x, y, targetX, targetY, board)
+    }
+    dig drawOn plant tool {}
+}

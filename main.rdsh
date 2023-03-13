@@ -1,0 +1,6 @@
+dig generateBoard plant import "generateBoard"
+dig setup plant import "setup"
+dig render plant import "render"
+
+dig board plant setup(generateBoard(8, 16), no)
+render(board, 2000, "./board")
