@@ -1,0 +1,20 @@
+dig Piece plant import "Piece"
+harvest class after Piece {
+    constructor plant tool(color) super(color)
+    dig _move plant tool(x, y, targetX, targetY, board) {
+        if(x = targetX) {
+            harvest this.check(y, targetY, t(i) board.get(x, i))
+        }
+        if(y = targetY) {
+            harvest this.check(x, targetX, t(i) board.get(i, y))
+        }
+        harvest no
+    }
+    dig drawOn plant tool(drawing, x, y, size, color) {
+        drawing.rectangle(x + 0.15 * size, y + 0.8 * size, 0.7 * size, 0.1 * size, color, yes)
+        drawing.rectangle(x + 0.25 * size, y + 0.5 * size, 0.5 * size, 0.3 * size, color, yes)
+        drawing.rectangle(x + 0.25 * size, y + 0.3 * size, 0.1 * size, 0.2 * size, color, yes)
+        drawing.rectangle(x + 0.45 * size, y + 0.3 * size, 0.1 * size, 0.2 * size, color, yes)
+        drawing.rectangle(x + 0.65 * size, y + 0.3 * size, 0.1 * size, 0.2 * size, color, yes)
+    }
+}

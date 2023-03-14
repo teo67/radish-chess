@@ -6,10 +6,10 @@ harvest class after Piece {
         dig ydiff plant math.abs(targetY - y)
         harvest xdiff > 0 and ydiff > 0 and xdiff + ydiff = 3
     }
-    dig drawOn plant tool(drawing p new Drawing(), x, y, size) {
-        drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, this.color, yes)
-        drawing.rectangle(x + 0.4 * size, y + 0.3 * size, 0.2 * size, 0.5 * size, this.color, yes)
+    dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
+        drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, color, yes)
+        drawing.rectangle(x + 0.4 * size, y + 0.3 * size, 0.2 * size, 0.5 * size, color, yes)
         drawing.polygon([x + 0.25 * size, x + 0.4 * size, x + 0.4 * size, x + 0.25 * size], 
-        [y + 0.5 * size, y + 0.3 * size, y + 0.6 * size, y + 0.6 * size], this.color, yes)
+        [y + 0.5 * size, y + 0.3 * size, y + 0.6 * size, y + 0.6 * size], color, yes)
     }
 }

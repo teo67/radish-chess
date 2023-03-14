@@ -1,0 +1,20 @@
+dig Piece plant import "Piece"
+harvest class after Piece {
+    constructor plant tool(color) super(color)
+    dig _move plant tool(x, y, targetX, targetY, board) {
+        dig ydiff plant targetY - y
+        dig xdiff plant targetX - x
+        if(math.abs(ydiff) != math.abs(xdiff)) {
+            harvest no
+        }
+        dig xDirection plant (xdiff > 0) = (ydiff > 0) ? 1, -1
+        harvest this.check(y, targetY, t(i) board.get(x + (i - y) * xDirection, i))
+    }
+    dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
+        drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, color, yes)
+        drawing.rectangle(x + 0.4 * size, y + 0.6 * size, 0.2 * size, 0.2 * size, color, yes)
+        drawing.ellipse(x + 0.5 * size, y + 0.4 * size, 0.4 * size, 0.5 * size, color, yes, math.constants.pi * 7/6, math.constants.pi / 3)
+        drawing.ellipse(x + 0.5 * size, y + 0.4 * size, 0.4 * size, 0.5 * size, color, yes, math.constants.pi * 5/12, math.constants.pi *13/12)
+        drawing.ellipse(x + 0.5 * size, y + 0.11 * size, 0.1 * size, 0.1 * size, color, yes)
+    }
+}

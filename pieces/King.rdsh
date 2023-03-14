@@ -1,0 +1,14 @@
+dig Loser plant import "Loser"
+harvest class after Loser {
+    constructor plant tool(color, player, x, y) super(color, player, x, y)
+    dig _move plant tool(x, y, targetX, targetY) {
+        harvest math.abs(targetX - x) < 2 and math.abs(targetY - y) < 2
+    }
+    dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
+        drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, color, yes)
+        drawing.rectangle(x + 0.4 * size, y + 0.6 * size, 0.2 * size, 0.2 * size, color, yes)
+        drawing.polygon([x + 0.3 * size, x + 0.7 * size, x + 0.6 * size, x + 0.4 * size], [y + 0.45 * size, y + 0.45 * size, y + 0.6 * size, y + 0.6 * size], color, yes)
+        drawing.rectangle(x + 0.45 * size, y + 0.15 * size, 0.1 * size, 0.3 * size, color, yes)
+        drawing.rectangle(x + 0.4 * size, y + 0.25 * size, 0.2 * size, 0.1 * size, color, yes)
+    }
+}

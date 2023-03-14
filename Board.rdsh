@@ -1,0 +1,49 @@
+dig Board plant class {
+    dig board
+    dig maxWidth
+    dig maxHeight
+    constructor plant tool(maxWidth, maxHeight, board plant []) {
+        this.board plant board
+        this.maxHeight plant maxHeight
+        this.maxWidth plant maxWidth
+    }
+    dig protected verifyPoint plant tool(x, y) {
+        if(x >= this.maxWidth) {
+            throw "'x' is outside the maximum width ('this.maxWidth') declared for this board!"
+        }
+        if(y >= this.maxHeight) {
+            throw "'y' is outside the maximum height ('this.maxHeight') declared for this board!"
+        }
+    }
+    dig setStandardRow plant tool(rownum, length) {
+        this.verifyPoint(length - 1, rownum)
+        this.board[rownum] plant []
+        repeat length {
+            this.board[rownum].push(no)
+        }
+    }
+    dig get plant tool(x, y) {
+        this.verifyPoint(x, y)
+        dig row plant this.board.get(y)
+        if(row = null) {
+            harvest null
+        }
+        harvest row.get(x)
+    }
+    dig set plant tool(x, y, item plant no) {
+        this.verifyPoint(x, y)
+        if(this.board.get(y) = null) {
+            this.board[y] plant []
+        }
+        this.board[y][x] plant item
+    }
+    dig static rectangle plant tool(width plant 8, height plant 8) {
+        dig board plant new Board(width, height)
+        for(dig i plant 0, i < height, i++) {
+            board.setStandardRow(i, width)
+        }
+        harvest board
+    }
+    dig static square plant tool(sideLength plant 8) rectangle(sideLength, sideLength)
+}
+harvest Board

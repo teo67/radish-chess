@@ -1,0 +1,96 @@
+dig Rook plant import "pieces/Rook"
+dig Bishop plant import "pieces/Bishop"
+dig King plant import "pieces/King"
+dig Queen plant import "pieces/Queen"
+dig Pawn plant import "pieces/Pawn"
+dig Knight plant import "pieces/Knight"
+dig Board plant import "Board"
+dig Player plant import "Player"
+dig PlayerSet plant import "PlayerSet"
+dig baseColors plant [
+    new Drawing.RGB(239, 152, 241),
+    new Drawing.RGB(0, 0, 0),
+    new Drawing.RGB(255, 255, 255)
+]
+dig fillOutRow plant tool(board, row, color, players) {
+    board[row][0] plant new Rook(color)
+    board[row][1] plant new Knight(color)
+    board[row][2] plant new Bishop(color)
+    board[row][3] plant new Queen(color)
+    board[row][4] plant new King(color, players[color], 4, row)
+    board[row][5] plant new Bishop(color)
+    board[row][6] plant new Knight(color)
+    board[row][7] plant new Rook(color)
+}
+dig bitOptions plant [1, 4, 8, 16, 24]
+dig Game plant class {
+    dig players
+    dig board
+    dig pallette
+    constructor plant tool(players, board) {
+        this.players plant players.players
+        players.lockedIn plant yes # lock in player set #
+        this.board plant board
+        dig palletteBits plant -1
+        dig rnd plant math.log(this.players.length + baseColors.length, 2)
+        for(dig i plant 0, i < bitOptions.length, i++) {
+            if(bitOptions[i] >= rnd) {
+                palletteBits plant bitOptions[i]
+                cancel
+            }
+        }
+        if(palletteBits = -1) {
+            throw "Too many players! The limit is '2 ** bitOptions.last - baseColors.length'."
+        }
+        this.pallette plant new Drawing.Pallette(palletteBits)
+        for(dig i plant 0, i < baseColors.length, i++) {
+            this.pallette.set(i, baseColors[i])
+        }
+        for(dig i plant 0, i < this.players.length, i++) {
+            this.pallette.set(i + baseColors.length, this.players[i].color)
+        }
+    }
+    dig static standard plant tool(blackOnTop plant yes, height plant 8) {
+        if(height < 4) {
+            throw "Standard boards must have at least four rows!"
+        }
+        dig board plant Board.rectangle(8, height)
+        dig players plant new PlayerSet()
+        dig w plant Player.White()
+        dig b plant Player.Black()
+        dig c1 plant players.generatePlayer(blackOnTop ? b, w)
+        dig c2 plant players.generatePlayer(blackOnTop ? w, b)
+        fillOutRow(board.board, 0, c1, players.players)
+        fillOutRow(board.board, height - 1, c2, players.players)
+        for(dig i plant 0, i < 8, i++) {
+            board.board[1][i] plant new Pawn(c1, Pawn.Direction.DOWN, 1)
+            board.board[height - 2][i] plant new Pawn(c2, Pawn.Direction.UP, height - 2)
+        }
+        harvest new Game(players, board)
+    }
+    dig render plant tool(tileWidth plant 200, outfile plant "./chess") {
+        if(this.board.maxWidth = 0 or this.board.maxHeight = 0) {
+            end
+        }
+        dig imgWidth plant tileWidth * this.board.maxWidth
+        dig imgHeight plant tileWidth * this.board.maxHeight
+        dig drawing plant new Drawing(imgWidth, imgHeight, this.pallette)
+        each(row keyto this.board.board) {
+            dig _row plant 0 + row
+            each(tile keyto this.board.board[row]) {
+                dig _tile plant 0 + tile
+                dig tileItem plant this.board.get(tile, row)
+                if(tileItem = null) {
+                    continue
+                }
+                drawing.rectangle(_tile * tileWidth, _row * tileWidth, tileWidth, tileWidth, 
+                    (_row+_tile)%2 + 1, yes)
+                if(tileItem) {
+                    tileItem.drawOn(drawing, _tile * tileWidth, _row * tileWidth, tileWidth, tileItem.color + baseColors.length)
+                }
+            }
+        }
+        drawing.render(outfile)
+    }
+}
+harvest Game

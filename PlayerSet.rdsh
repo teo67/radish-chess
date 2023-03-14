@@ -1,0 +1,15 @@
+harvest class {
+    dig players
+    dig lockedIn
+    constructor plant tool() {
+        this.players plant []
+        this.lockedIn plant no
+    }
+    dig generatePlayer plant tool(player) {
+        if(this.lockedIn) {
+            throw "This player set has already been locked in for a game! No more players can be added!"
+        }
+        this.players.push(player)
+        harvest this.players.length - 1
+    }
+}

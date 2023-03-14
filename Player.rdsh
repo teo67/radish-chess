@@ -1,0 +1,11 @@
+dig Player plant class {
+    dig color
+    dig losers
+    constructor plant tool(color) {
+        this.color plant color
+        this.losers plant []
+    }
+    dig static Black plant tool new Player(new Drawing.RGB(108, 60, 0))
+    dig static White plant tool new Player(new Drawing.RGB(207, 169, 120))
+}
+harvest Player
