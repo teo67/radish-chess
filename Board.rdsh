@@ -7,6 +7,13 @@ dig Board plant class {
         this.maxHeight plant maxHeight
         this.maxWidth plant maxWidth
     }
+    dig forEach plant tool(lambda) {
+        each(y keyto this.board) {
+            each(x keyto this.board[y]) {
+                lambda(x, y, this.board[y][x])
+            }
+        }
+    }
     dig protected verifyPoint plant tool(x, y) {
         if(x >= this.maxWidth) {
             throw "'x' is outside the maximum width ('this.maxWidth') declared for this board!"
@@ -35,7 +42,9 @@ dig Board plant class {
         if(this.board.get(y) = null) {
             this.board[y] plant []
         }
+        dig prev plant this.board[y].get(x)
         this.board[y][x] plant item
+        harvest prev
     }
     dig static rectangle plant tool(width plant 8, height plant 8) {
         dig board plant new Board(width, height)

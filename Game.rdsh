@@ -6,30 +6,28 @@ dig Pawn plant import "pieces/Pawn"
 dig Knight plant import "pieces/Knight"
 dig Board plant import "Board"
 dig Player plant import "Player"
-dig PlayerSet plant import "PlayerSet"
 dig baseColors plant [
     new Drawing.RGB(239, 152, 241),
     new Drawing.RGB(0, 0, 0),
     new Drawing.RGB(255, 255, 255)
 ]
-dig fillOutRow plant tool(board, row, color, players) {
-    board[row][0] plant new Rook(color)
-    board[row][1] plant new Knight(color)
-    board[row][2] plant new Bishop(color)
-    board[row][3] plant new Queen(color)
-    board[row][4] plant new King(color, players[color], 4, row)
-    board[row][5] plant new Bishop(color)
-    board[row][6] plant new Knight(color)
-    board[row][7] plant new Rook(color)
+dig fillOutRow plant tool(game, row, color) {
+    game.registerPiece(new Rook(color), 0, row)
+    game.registerPiece(new Knight(color), 1, row)
+    game.registerPiece(new Bishop(color), 2, row)
+    game.registerPiece(new Queen(color), 3, row)
+    game.registerPiece(new King(color), 4, row)
+    game.registerPiece(new Bishop(color), 5, row)
+    game.registerPiece(new Knight(color), 6, row)
+    game.registerPiece(new Rook(color), 7, row)
 }
 dig bitOptions plant [1, 4, 8, 16, 24]
 dig Game plant class {
     dig players
     dig board
     dig pallette
-    constructor plant tool(players, board) {
-        this.players plant players.players
-        players.lockedIn plant yes # lock in player set #
+    constructor plant tool(numPlayers, board) {
+        this.players plant []
         this.board plant board
         dig palletteBits plant -1
         dig rnd plant math.log(this.players.length + baseColors.length, 2)
@@ -46,27 +44,55 @@ dig Game plant class {
         for(dig i plant 0, i < baseColors.length, i++) {
             this.pallette.set(i, baseColors[i])
         }
-        for(dig i plant 0, i < this.players.length, i++) {
-            this.pallette.set(i + baseColors.length, this.players[i].color)
+        for(dig i plant 0, i < numPlayers, i++) {
+            dig color plant this.generateRandomColor()
+            this.players.push(new Player(color))
+            this.pallette.set(i + baseColors.length, color)
         }
+    }
+    dig setPlayerColor plant tool(i, color) {
+        if(i >= this.players.length) {
+            throw "This game only has 'this.players.length' players!"
+        }
+        this.players[i].color plant color
+        this.pallette.set(i + baseColors.length, color)
+    }
+    dig protected generateRandomColor plant tool {
+        harvest new Drawing.RGB(
+            math.floor(math.random() * 256),
+            math.floor(math.random() * 256),
+            math.floor(math.random() * 256)
+        )
+    }
+    dig registerPiece plant tool(piece, x, y) {
+        piece.register(this, x, y)
+        dig res plant this.board.set(x, y, piece)
+        if(res) {
+            res.reset()
+        }
+    }
+    dig finish plant tool() {
+        this.board.forEach(t(x, y, piece) { if(piece) { piece.reset() } })
     }
     dig static standard plant tool(blackOnTop plant yes, height plant 8) {
         if(height < 4) {
             throw "Standard boards must have at least four rows!"
         }
         dig board plant Board.rectangle(8, height)
-        dig players plant new PlayerSet()
         dig w plant Player.White()
         dig b plant Player.Black()
-        dig c1 plant players.generatePlayer(blackOnTop ? b, w)
-        dig c2 plant players.generatePlayer(blackOnTop ? w, b)
-        fillOutRow(board.board, 0, c1, players.players)
-        fillOutRow(board.board, height - 1, c2, players.players)
+        dig c1 plant blackOnTop ? 0, 1
+        dig c2 plant 1 - c1
+        dig game plant new Game(2, board)
+        game.setPlayerColor(0, b)
+        game.setPlayerColor(1, w)
+        fillOutRow(game, 0, c1)
+        fillOutRow(game, height - 1, c2)
         for(dig i plant 0, i < 8, i++) {
-            board.board[1][i] plant new Pawn(c1, Pawn.Direction.DOWN, 1)
-            board.board[height - 2][i] plant new Pawn(c2, Pawn.Direction.UP, height - 2)
+            game.registerPiece(new Pawn(c1, Pawn.Direction.DOWN), i, 1)
+            game.registerPiece(new Pawn(c2, Pawn.Direction.UP), i, height - 2)
         }
-        harvest new Game(players, board)
+        harvest game
     }
     dig render plant tool(tileWidth plant 200, outfile plant "./chess") {
         if(this.board.maxWidth = 0 or this.board.maxHeight = 0) {

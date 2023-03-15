@@ -1,11 +1,22 @@
 dig Player plant class {
     dig color
-    dig losers
+    dig losersX
+    dig losersY
     constructor plant tool(color) {
         this.color plant color
-        this.losers plant []
+        this.losersX plant []
+        this.losersY plant []
     }
-    dig static Black plant tool new Player(new Drawing.RGB(108, 60, 0))
-    dig static White plant tool new Player(new Drawing.RGB(207, 169, 120))
+    dig addLoser plant tool(x, y) {
+        this.losersX.push(x)
+        this.losersY.push(y)
+        harvest this.losersX.length - 1
+    }
+    dig updateLoser plant tool(i, x, y) {
+        this.losersX[i] plant x
+        this.losersY[i] plant y
+    }
+    dig static Black plant tool new Drawing.RGB(108, 60, 0)
+    dig static White plant tool new Drawing.RGB(207, 169, 120)
 }
 harvest Player
