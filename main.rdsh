@@ -1,28 +1,3 @@
-dig Board plant import "Board"
-dig Player plant import "Player"
-dig Knight plant import "pieces/Knight"
 dig Game plant import "Game"
-dig Queen plant import "pieces/Queen"
-dig standardGame plant Game.standard()
-standardGame.render()
-standardGame.finish()
-
-dig stolenPawn plant standardGame.board.get(0, 0)
-
-dig weirdBoard plant new Board(4, 5)
-dig weirdGame plant new Game(4, weirdBoard)
-
-# weirdGame.setPlayerColor(0, Player.White(0))
-weirdGame.setPlayerColor(1, Player.Black())
-weirdGame.setPlayerColor(2, new Drawing.RGB(0, 255, 0))
-weirdGame.setPlayerColor(3, new Drawing.RGB(0, 0, 255)) #
-
-weirdBoard.setStandardRow(0, 3)
-weirdGame.registerPiece(new Knight(0), 1, 1)
-weirdGame.registerPiece(new Queen(1), 3, 1)
-weirdGame.registerPiece(new Knight(2), 0, 2)
-weirdGame.registerPiece(new Knight(3), 2, 2)
-weirdGame.registerPiece(stolenPawn, 2, 4)
-weirdBoard.setStandardRow(3, 4)
-
-weirdGame.render(200, "./weird")
+dig game plant Game.standard()
+game.play()

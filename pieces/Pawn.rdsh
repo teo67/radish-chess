@@ -9,7 +9,7 @@ harvest class after Piece {
         super(color)
         this.direction plant direction
     }
-    dig _register plant tool(game, x, y) {
+    dig _register plant tool(players, x, y) {
         this.startingY plant y
     }
     dig _move plant tool(x, y, targetX, targetY, board) {

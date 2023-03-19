@@ -1,0 +1,7 @@
+harvest class {
+    constructor plant tool(x, y, piece) {
+        this.x plant x
+        this.y plant y
+        this.piece plant piece
+    }
+}

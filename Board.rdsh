@@ -10,7 +10,9 @@ dig Board plant class {
     dig forEach plant tool(lambda) {
         each(y keyto this.board) {
             each(x keyto this.board[y]) {
-                lambda(x, y, this.board[y][x])
+                if(lambda(0 + x, 0 + y, this.board[y][x])) { # short circuit #
+                    end
+                }
             }
         }
     }
@@ -27,6 +29,18 @@ dig Board plant class {
         this.board[rownum] plant []
         repeat length {
             this.board[rownum].push(no)
+        }
+    }
+    dig movePiece plant tool(p1, p2, callback plant null) {
+        this.board[p1.y][p1.x] plant no
+        this.board[p2.y][p2.x] plant p1.piece
+        p1.piece.confirmMove(p2.x, p2.y)
+        if(callback != null and callback()) { # move back #
+            this.board[p1.y][p1.x] plant p1.piece
+            this.board[p2.y][p2.x] plant p2.piece
+            p1.piece.unconfirmMove(p1.x, p1.y)
+        } elseif(p2.piece) {
+            p2.piece.reset()
         }
     }
     dig get plant tool(x, y) {

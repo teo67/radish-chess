@@ -6,6 +6,7 @@ dig Pawn plant import "pieces/Pawn"
 dig Knight plant import "pieces/Knight"
 dig Board plant import "Board"
 dig Player plant import "Player"
+dig Position plant import "Position"
 dig baseColors plant [
     new Drawing.RGB(239, 152, 241),
     new Drawing.RGB(0, 0, 0),
@@ -23,12 +24,14 @@ dig fillOutRow plant tool(game, row, color) {
 }
 dig bitOptions plant [1, 4, 8, 16, 24]
 dig Game plant class {
-    dig players
-    dig board
-    dig pallette
+    dig protected players
+    dig protected board
+    dig protected pallette
+    dig protected isOver
     constructor plant tool(numPlayers, board) {
         this.players plant []
         this.board plant board
+        this.isOver plant no
         dig palletteBits plant -1
         dig rnd plant math.log(this.players.length + baseColors.length, 2)
         for(dig i plant 0, i < bitOptions.length, i++) {
@@ -65,13 +68,20 @@ dig Game plant class {
         )
     }
     dig registerPiece plant tool(piece, x, y) {
-        piece.register(this, x, y)
+        if(this.isOver) {
+            throw "This game is already over!"
+        }
+        piece.register(this.players, x, y)
         dig res plant this.board.set(x, y, piece)
         if(res) {
             res.reset()
         }
     }
     dig finish plant tool() {
+        if(this.isOver) {
+            throw "This game has already been finished!"
+        }
+        this.isOver plant yes
         this.board.forEach(t(x, y, piece) { if(piece) { piece.reset() } })
     }
     dig static standard plant tool(blackOnTop plant yes, height plant 8) {
@@ -81,11 +91,11 @@ dig Game plant class {
         dig board plant Board.rectangle(8, height)
         dig w plant Player.White()
         dig b plant Player.Black()
-        dig c1 plant blackOnTop ? 0, 1
+        dig c1 plant blackOnTop ? 1, 0
         dig c2 plant 1 - c1
         dig game plant new Game(2, board)
-        game.setPlayerColor(0, b)
-        game.setPlayerColor(1, w)
+        game.setPlayerColor(0, w)
+        game.setPlayerColor(1, b)
         fillOutRow(game, 0, c1)
         fillOutRow(game, height - 1, c2)
         for(dig i plant 0, i < 8, i++) {
@@ -94,7 +104,7 @@ dig Game plant class {
         }
         harvest game
     }
-    dig render plant tool(tileWidth plant 200, outfile plant "./chess") {
+    dig render plant tool(tileWidth, outfile) {
         if(this.board.maxWidth = 0 or this.board.maxHeight = 0) {
             end
         }
@@ -117,6 +127,132 @@ dig Game plant class {
             }
         }
         drawing.render(outfile)
+    }
+    dig protected getAndValidatePosition plant tool(requirePiece plant no, requireTeam plant -1) {
+        dig x plant this.getXInput()
+        dig y plant this.getYInput()
+        dig selected plant null
+        try {
+            selected plant this.board.get(x, y)
+        } catch {
+            holler("That square does not exist on the board!")
+            harvest null
+        }
+        if(requirePiece and !selected) {
+            holler("There is no piece on that square of the board!")
+        } elseif(requireTeam != -1 and selected.color != requireTeam) {
+            holler("Unable to select a piece that is not on your team!")
+        } else {
+            harvest new Position(x, y, selected)
+        }
+        harvest null
+    }
+    dig protected iteratePlayer plant tool(current) {
+        dig next plant current + 1
+        while(this.players[next % this.players.length].hasLost) {
+            next++
+        }
+        harvest next % this.players.length
+    }
+    dig play plant tool(tileWidth plant 200, outfile plant "./chess") {
+        if(this.isOver) {
+            holler("This game is already over!")
+            end
+        }
+        dig lastPlayer plant -1
+        dig currentPlayer plant -1
+        while(!this.isOver) {
+            currentPlayer plant iteratePlayer(currentPlayer)
+            if(currentPlayer = lastPlayer) {
+                holler("Player 'currentPlayer' wins!")
+                this.finish()
+            } else {
+                if(this.takeTurn(currentPlayer, tileWidth, outfile)) {
+                    lastPlayer plant currentPlayer
+                }
+            }
+        }
+        holler("Game Over!")
+    }
+    dig protected getXInput plant tool {
+        holler.write("Enter an x position: ")
+        dig read plant holler.read()
+        try {
+            harvest 0 + read
+        } catch {
+            harvest -1
+        }
+    }
+    dig protected getYInput plant tool {
+        holler.write("Enter a y position: ")
+        dig read plant holler.read()
+        try {
+            harvest 0 + read
+        } catch {
+            harvest -1
+        }
+    }
+    dig takeTurn plant tool(teamNumber, tileWidth plant 200, outfile plant "./chess") {
+        if(this.isOver) {
+            holler("This game is already over!")
+            harvest no
+        }
+        dig player plant this.players[teamNumber]
+        if(player.hasLost) {
+            holler("This player has already lost and is no longer in the game!")
+            harvest no
+        }
+        holler("Player 'teamNumber', it\'s your turn! Printing the board to a new image...")
+        this.render(tileWidth, outfile)
+        dig board plant this.board
+        dig inCheck plant player.checkForCheck(this.board, teamNumber)
+        dig canEscape plant player.checkCanEscape(this.board, teamNumber)
+        if(!canEscape) {
+            if(inCheck) {
+                holler("Player 'teamNumber' loses by checkmate!")
+                player.hasLost plant yes
+                board.forEach(t(x, y, item) {
+                    if(item and item.color = teamNumber) { # clear off the player's pieces #
+                        board.board[y][x] plant no
+                        item.reset()
+                    }
+                })
+            } else {
+                holler("It\'s a stalemate!")
+                this.finish()
+            }
+            harvest no
+        }
+        if(inCheck) {
+            holler("Warning: You are currently in check.")
+        }
+        dig hasMoved plant no 
+        while(!hasMoved) {
+            d p1 p null d p2 p null
+            while(yes) {
+                holler("Please enter the position of the piece to move:")
+                p1 p this.getAndValidatePosition(yes, teamNumber)
+                if(p1 = null) { continue }
+                holler("Please enter the position of the square to move to:")
+                p2 p this.getAndValidatePosition()
+                if(p2 = null) { continue }
+                if(!p1.piece.move(p1.x, p1.y, p2.x, p2.y, this.board)) {
+                    holler("You can\'t move to that square because it\'s against the rules! Please try again.")
+                    continue
+                }
+                cancel
+            }
+            board.movePiece(p1, p2, t {
+                if(player.checkForCheck(board, teamNumber)) {
+                    holler("Unable to move here, because it would put you in check! Please try again.")
+                    harvest yes
+                }
+                hasMoved plant yes
+                holler("Move successful!")
+                harvest no
+            })
+        }
+        harvest yes
     }
 }
 harvest Game
