@@ -242,7 +242,7 @@ dig Game plant class {
                 }
                 cancel
             }
-            board.movePiece(p1, p2, t {
+            board.movePiece(p1, p2, yes, t {
                 if(player.checkForCheck(board, teamNumber)) {
                     holler("Unable to move here, because it would put you in check! Please try again.")
                     harvest yes

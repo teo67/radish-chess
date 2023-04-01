@@ -1,31 +1,93 @@
 dig Piece plant import "Piece"
+dig Bishop plant import "Bishop"
+dig Knight plant import "Knight"
+dig Queen plant import "Queen"
+dig Rook plant import "Rook"
 harvest class after Piece {
     dig static Direction plant enum {
-        UP, DOWN
+        UP, DOWN, LEFT, RIGHT
     }
     dig direction
-    dig startingY plant -1
+    dig starting plant -1
+    dig players
     constructor plant tool(color, direction) {
         super(color)
         this.direction plant direction
     }
-    dig _register plant tool(players, x, y) {
-        this.startingY plant y
+    dig onRegister plant tool(players, x, y) {
+        this.players plant players
+        this.starting plant (this.direction = Direction.UP or this.direction = Direction.DOWN) ? y, x
     }
+    dig postMove plant tool(x, y, board, isHuman) {
+        if(isHuman) {
+            holler("post moving")
+            dig transforming plant no
+            switch(this.direction) {
+                case Direction.UP
+                    transforming plant (y = 0)
+                    cancel
+                case Direction.DOWN
+                    transforming plant (y = board.maxHeight - 1)
+                    cancel
+                case Direction.LEFT
+                    transforming plant (x = 0)
+                    cancel
+                case Direction.RIGHT
+                    transforming plant (x = board.maxWidth - 1)
+                    cancel
+            }
+            if(transforming) {
+                holler.write("Your pawn made it to the other end of the board! What would you like it to transform into? Enter Q for Queen, R for Rook, K for Knight, and B for Bishop. ")
+                dig newpiece plant null
+                while yes {
+                    dig ans plant holler.read()
+                    switch(ans) {
+                        case "Q"
+                            newpiece plant new Queen(this.color)
+                            cancel
+                        case "R"
+                            newpiece plant new Rook(this.color)
+                            cancel
+                        case "K"
+                            newpiece plant new Knight(this.color)
+                            cancel
+                        case "B"
+                            newpiece plant new Bishop(this.color)
+                            cancel
+                    }
+                    if(newpiece = null) {
+                        holler.write("That\'s not a valid response. Please try again with Q for Queen, R for Rook, K for Knight, or B for Bishop. ")
+                    } else {
+                        cancel
+                    }
+                }
+                this.reset()
+                newpiece.register(this.players, x, y)
+                board.board[y][x] plant newpiece
+                holler("Your pawn has been transformed!")
+            }
+        }
+    } 
     dig _move plant tool(x, y, targetX, targetY, board) {
+        dig isVertical plant (this.direction = Direction.UP or this.direction = Direction.DOWN)
         dig ydiff plant targetY - y
-        if(this.direction = Direction.UP) {
+        if(isVertical and this.direction = Direction.UP) {
             ydiff *= -1
         }
         dig xdiff plant targetX - x
-        if(ydiff = 1 and math.abs(xdiff) = 1) {
+        if(!isVertical and this.direction = Direction.LEFT) {
+            xdiff *= -1
+        }
+        dig primaryDiff plant isVertical ? ydiff, xdiff
+        dig secondaryDiff plant isVertical ? xdiff, ydiff
+        if(primaryDiff = 1 and math.abs(secondaryDiff) = 1) {
             harvest not!board.get(targetX, targetY)
         }
-        if(xdiff != 0) { harvest no }
-        if(ydiff = 2) {
-            harvest y = this.startingY
+        if(secondaryDiff != 0) { harvest no }
+        if(primaryDiff = 2) {
+            harvest (isVertical ? y, x) = this.starting
         }
-        harvest ydiff = 1
+        harvest primaryDiff = 1
     }
     dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
         drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, color, yes)

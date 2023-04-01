@@ -1,8 +1,96 @@
 dig Loser plant import "Loser"
+dig Rook plant import "Rook"
 harvest class after Loser {
+    dig hasMoved plant 0
+    dig castleX plant -1
+    dig castleY plant -1
+    dig castleTargetX plant -1
+    dig castleTargetY plant -1
+    dig board plant null
     constructor plant tool(color) super(color)
-    dig _move plant tool(x, y, targetX, targetY) {
-        harvest math.abs(targetX - x) < 2 and math.abs(targetY - y) < 2
+    dig _onRegister plant tool {
+        this.hasMoved plant 0
+    }
+    dig _confirmMove plant tool {
+        this.hasMoved++
+        if(this.board != null) {
+            dig piece plant this.board[this.castleY][this.castleX]
+            this.board[this.castleTargetY][this.castleTargetX] plant piece
+            this.board[this.castleY][this.castleX] plant no
+            piece.confirmMove()
+        }
+    }
+    dig _unconfirmMove plant tool {
+        this.hasMoved--
+        if(this.board != null) {
+            dig piece plant this.board[this.castleTargetY][this.castleTargetX]
+            this.board[this.castleY][this.castleX] plant piece
+            this.board[this.castleTargetY][this.castleTargetX] plant no
+            piece.unconfirmMove()
+        }
+    }
+    dig _move plant tool(x, y, targetX, targetY, board) {
+        this.board plant null
+        dig xdiff plant targetX - x
+        dig ydiff plant targetY - y
+        if(math.abs(xdiff) < 2 and math.abs(ydiff) < 2) {
+            harvest yes
+        }
+        dig a plant -1
+        dig b
+        dig isX
+        if(math.abs(xdiff) = 2 and ydiff = 0) {
+            a plant x
+            b plant targetX
+            isX plant yes
+        } elseif(math.abs(ydiff) = 2 and xdiff = 0) {
+            a plant y
+            b plant targetY
+            isX plant no
+        }
+        if(a != -1) {
+            dig direction plant b > a ? 1, -1
+            dig setpoint plant -1
+            for(dig i plant a + direction, i >= 0 and i < isX ? board.maxWidth, board.maxHeight, i += direction) {
+                dig got plant isX ? board.get(i, y), board.get(x, i)
+                if(got = null) {
+                    harvest no
+                }
+                if(got) {
+                    if(i != a + direction and (type got) = Rook.prototype and got.color = this.color and got.hasMoved = 0 and this.hasMoved = 0) {
+                        setpoint plant i
+                        cancel
+                    } else {
+                        harvest no
+                    }
+                }
+            }
+            if(setpoint = -1) {
+                harvest no
+            }
+            if(this.players[this.index].checkForCheck(board, this.index)) {
+                harvest no
+            }
+            board.board[y][x] plant no
+            board.board[isX ? y, y + direction][isX ? x + direction, x] plant this
+            if(this.players[this.index].checkForCheck(board, this.index)) { # cannot move through check #
+                harvest no
+            }
+            board.board[isX ? y, y + direction][isX ? x + direction, x] plant no
+            board.board[y][x] plant this
+            this.board plant board.board
+            this.castleX plant isX ? setpoint, x
+            this.castleY plant isX ? y, setpoint
+            this.castleTargetX plant targetX
+            this.castleTargetY plant targetY
+            if(isX) {
+                this.castleTargetX -= direction
+            } else {
+                this.castleTargetY -= direction
+            }
+            harvest yes
+        }
+        harvest no
     }
     dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
         drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, color, yes)

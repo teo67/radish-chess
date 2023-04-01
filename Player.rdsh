@@ -26,7 +26,7 @@ dig Player plant class {
             if(item and item.color = myIndex) {
                 board.forEach(t(x1, y1, item1) {
                     if(item.move(x, y, x1, y1, board)) {
-                        board.movePiece(new Position(x, y, item), new Position(x1, y1, item1), t {
+                        board.movePiece(new Position(x, y, item), new Position(x1, y1, item1), no, t {
                             if(!player.checkForCheck(board, myIndex)) {
                                 canEscape plant yes
                             }
