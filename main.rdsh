@@ -1,3 +1,13 @@
 dig Game plant import "Game"
-dig game plant Game.standard()
+dig Board plant import "Board"
+dig King plant import "pieces/King"
+dig Rook plant import "pieces/Rook"
+
+dig board plant Board.square(8)
+
+dig game plant new Game(2, board)
+
+game.registerPiece(new King(0), 3, 6)
+game.registerPiece(new Rook(0), 3, 0)
+
 game.play()
