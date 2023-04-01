@@ -1,9 +1,9 @@
 dig Piece plant import "Piece"
 harvest class after Piece {
     constructor plant tool(color) super(color)
-    dig _move plant tool(x, y, targetX, targetY) {
-        dig xdiff plant math.abs(targetX - x)
-        dig ydiff plant math.abs(targetY - y)
+    dig _move plant tool(p1, p2) {
+        dig xdiff plant math.abs(p2.x - p1.x)
+        dig ydiff plant math.abs(p2.y - p1.y)
         harvest xdiff > 0 and ydiff > 0 and xdiff + ydiff = 3
     }
     dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {

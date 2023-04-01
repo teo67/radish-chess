@@ -4,11 +4,13 @@ dig Player plant class {
     dig losersX
     dig losersY
     dig hasLost
+    dig turnsTaken
     constructor plant tool(color) {
         this.color plant color
         this.losersX plant []
         this.losersY plant []
         this.hasLost plant no
+        this.turnsTaken plant 0
     }
     dig addLoser plant tool(x, y) {
         this.losersX.push(x)
@@ -19,15 +21,17 @@ dig Player plant class {
         this.losersX[i] plant x
         this.losersY[i] plant y
     }
-    dig checkCanEscape plant tool(board, myIndex) {
+    dig checkCanEscape plant tool(board, players, myIndex) {
         dig canEscape plant no
         dig player plant this
         board.forEach(t(x, y, item) {
             if(item and item.color = myIndex) {
                 board.forEach(t(x1, y1, item1) {
-                    if(item.move(x, y, x1, y1, board)) {
-                        board.movePiece(new Position(x, y, item), new Position(x1, y1, item1), no, t {
-                            if(!player.checkForCheck(board, myIndex)) {
+                    dig p1 plant new Position(x, y, item)
+                    dig p2 plant new Position(x1, y1, item1)
+                    if(item.move(p1, p2, board, players)) {
+                        board.movePiece(p1, p2, 0, players, no, t {
+                            if(!player.checkForCheck(board, players, myIndex)) {
                                 canEscape plant yes
                             }
                             harvest yes # temporary move #
@@ -40,13 +44,13 @@ dig Player plant class {
         })
         harvest canEscape
     }
-    dig checkForCheck plant tool(board, myIndex) {
+    dig checkForCheck plant tool(board, players, myIndex) {
         dig inCheck plant no
         dig player plant this
         board.forEach(t(x, y, item) {
             if(item and item.color != myIndex) {
                 for(dig i plant 0, i < player.losersX.length, i++) {
-                    if(item.move(x, y, player.losersX[i], player.losersY[i], board)) {
+                    if(item.move(new Position(x, y, null), new Position(player.losersX[i], player.losersY[i], null), board, players)) {
                         inCheck plant yes
                         cancel
                     }

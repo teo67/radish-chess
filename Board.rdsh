@@ -31,19 +31,19 @@ dig Board plant class {
             this.board[rownum].push(no)
         }
     }
-    dig movePiece plant tool(p1, p2, isHuman, callback plant null) {
+    dig movePiece plant tool(p1, p2, turnNumber, players, isHuman, callback plant null) {
         this.board[p1.y][p1.x] plant no
         this.board[p2.y][p2.x] plant p1.piece
-        p1.piece.confirmMove(p2.x, p2.y)
+        p1.piece.confirmMove(p1, p2, turnNumber, this, players)
         if(callback != null and callback()) { # move back #
+            p1.piece.unconfirmMove(p1, p2, turnNumber, this, players)
             this.board[p1.y][p1.x] plant p1.piece
             this.board[p2.y][p2.x] plant p2.piece
-            p1.piece.unconfirmMove(p1.x, p1.y)
         } else {
             if(p2.piece) {
                 p2.piece.reset()
             }
-            p1.piece.postMove(p2.x, p2.y, this, isHuman)
+            p1.piece.postMove(p1, p2, this, players, isHuman)
         }
     }
     dig get plant tool(x, y) {

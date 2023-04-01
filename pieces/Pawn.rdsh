@@ -3,37 +3,74 @@ dig Bishop plant import "Bishop"
 dig Knight plant import "Knight"
 dig Queen plant import "Queen"
 dig Rook plant import "Rook"
-harvest class after Piece {
+dig Pawn plant class after Piece {
     dig static Direction plant enum {
         UP, DOWN, LEFT, RIGHT
     }
     dig direction
     dig starting plant -1
-    dig players
+    dig doubleTurnstamp plant -2
+    dig captureDirection plant 0
     constructor plant tool(color, direction) {
         super(color)
         this.direction plant direction
     }
+    dig unconfirmMove plant tool(p1, p2, turnNumber, board) {
+        if(this.doubleTurnstamp = turnNumber) {
+            this.doubleTurnstamp plant -2
+        }
+        if(this.captureDirection != 0) {
+            dig isVertical plant (this.direction = Direction.UP or this.direction = Direction.DOWN)
+            dig tx plant isVertical ? p1.x + this.captureDirection, p1.x
+            dig ty plant isVertical ? p1.y, p1.y + this.captureDirection
+            board.board[ty][tx] plant p2.piece
+            p2.piece plant no
+        }
+    }
+    dig confirmMove plant tool(p1, p2, turnNumber, board) {
+        if(this.doubleTurnstamp = -1) {
+            this.doubleTurnstamp plant turnNumber
+        }
+        if(this.captureDirection != 0) {
+            dig isVertical plant (this.direction = Direction.UP or this.direction = Direction.DOWN)
+            dig tx plant isVertical ? p1.x + this.captureDirection, p1.x
+            dig ty plant isVertical ? p1.y, p1.y + this.captureDirection
+            p2.piece plant board.board[ty][tx]
+            board.board[ty][tx] plant no
+        }
+    }
     dig onRegister plant tool(players, x, y) {
-        this.players plant players
+        this.captureDirection plant 0
+        this.doubleTurnstamp plant -2
         this.starting plant (this.direction = Direction.UP or this.direction = Direction.DOWN) ? y, x
     }
-    dig postMove plant tool(x, y, board, isHuman) {
+    dig protected opposite plant tool(direction) {
+        switch(direction) {
+            case Direction.UP
+                harvest Direction.DOWN
+            case Direction.DOWN
+                harvest Direction.UP
+            case Direction.LEFT 
+                harvest Direction.RIGHT
+            case Direction.RIGHT
+                harvest Direction.LEFT
+        }
+    }
+    dig postMove plant tool(p1, p2, board, players, isHuman) {
         if(isHuman) {
-            holler("post moving")
             dig transforming plant no
             switch(this.direction) {
                 case Direction.UP
-                    transforming plant (y = 0)
+                    transforming plant (p2.y = 0)
                     cancel
                 case Direction.DOWN
-                    transforming plant (y = board.maxHeight - 1)
+                    transforming plant (p2.y = board.maxHeight - 1)
                     cancel
                 case Direction.LEFT
-                    transforming plant (x = 0)
+                    transforming plant (p2.x = 0)
                     cancel
                 case Direction.RIGHT
-                    transforming plant (x = board.maxWidth - 1)
+                    transforming plant (p2.x = board.maxWidth - 1)
                     cancel
             }
             if(transforming) {
@@ -62,30 +99,46 @@ harvest class after Piece {
                     }
                 }
                 this.reset()
-                newpiece.register(this.players, x, y)
-                board.board[y][x] plant newpiece
+                newpiece.register(players, p2.x, p2.y)
+                board.board[p2.y][p2.x] plant newpiece
                 holler("Your pawn has been transformed!")
             }
         }
     } 
-    dig _move plant tool(x, y, targetX, targetY, board) {
+    dig _move plant tool(p1, p2, board, players) {
+        this.captureDirection plant 0
         dig isVertical plant (this.direction = Direction.UP or this.direction = Direction.DOWN)
-        dig ydiff plant targetY - y
+        dig ydiff plant p2.y - p1.y
         if(isVertical and this.direction = Direction.UP) {
             ydiff *= -1
         }
-        dig xdiff plant targetX - x
+        dig xdiff plant p2.x - p1.x
         if(!isVertical and this.direction = Direction.LEFT) {
             xdiff *= -1
         }
         dig primaryDiff plant isVertical ? ydiff, xdiff
         dig secondaryDiff plant isVertical ? xdiff, ydiff
         if(primaryDiff = 1 and math.abs(secondaryDiff) = 1) {
-            harvest not!board.get(targetX, targetY)
+            dig gotten plant board.get(p2.x, p2.y)
+            if(gotten) {
+                harvest yes
+            }
+            dig nextTo plant board.get((isVertical ? p2.x, p1.x), (isVertical ? p1.y, p2.y))
+            if(nextTo and (type nextTo) = Pawn.prototype and nextTo.color != this.color and this.opposite(this.direction) = nextTo.direction and players[nextTo.color].turnsTaken = nextTo.doubleTurnstamp) {
+                this.captureDirection plant secondaryDiff
+                harvest yes
+            }
+            harvest no
         }
         if(secondaryDiff != 0) { harvest no }
         if(primaryDiff = 2) {
-            harvest (isVertical ? y, x) = this.starting
+            if((isVertical ? p1.y, p1.x) = this.starting) {
+                if(this.doubleTurnstamp = -2) {
+                    this.doubleTurnstamp plant -1
+                }
+                harvest yes
+            }
+            harvest no
         }
         harvest primaryDiff = 1
     }
@@ -97,3 +150,4 @@ harvest class after Piece {
         drawing.ellipse(x + 0.5 * size, y + 0.25 * size, 0.1 * size, 0.1 * size, color, yes)
     }
 }
+harvest Pawn

@@ -205,8 +205,9 @@ dig Game plant class {
         holler("Player 'teamNumber', it\'s your turn! Printing the board to a new image...")
         this.render(tileWidth, outfile)
         dig board plant this.board
-        dig inCheck plant player.checkForCheck(this.board, teamNumber)
-        dig canEscape plant player.checkCanEscape(this.board, teamNumber)
+        dig players plant this.players
+        dig inCheck plant player.checkForCheck(this.board, this.players, teamNumber)
+        dig canEscape plant player.checkCanEscape(this.board, this.players, teamNumber)
         if(!canEscape) {
             if(inCheck) {
                 holler("Player 'teamNumber' loses by checkmate!")
@@ -226,6 +227,7 @@ dig Game plant class {
         if(inCheck) {
             holler("Warning: You are currently in check.")
         }
+        this.players[teamNumber].turnsTaken++
         dig hasMoved plant no 
         while(!hasMoved) {
             d p1 p null d p2 p null
@@ -236,14 +238,14 @@ dig Game plant class {
                 holler("Please enter the position of the square to move to:")
                 p2 p this.getAndValidatePosition()
                 if(p2 = null) { continue }
-                if(!p1.piece.move(p1.x, p1.y, p2.x, p2.y, this.board)) {
+                if(!p1.piece.move(p1, p2, this.board, this.players)) {
                     holler("You can\'t move to that square because it\'s against the rules! Please try again.")
                     continue
                 }
                 cancel
             }
-            board.movePiece(p1, p2, yes, t {
-                if(player.checkForCheck(board, teamNumber)) {
+            board.movePiece(p1, p2, this.players[teamNumber].turnsTaken, this.players, yes, t {
+                if(player.checkForCheck(board, players, teamNumber)) {
                     holler("Unable to move here, because it would put you in check! Please try again.")
                     harvest yes
                 }

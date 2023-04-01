@@ -1,14 +1,14 @@
 dig Piece plant import "Piece"
 harvest class after Piece {
     constructor plant tool(color) super(color)
-    dig _move plant tool(x, y, targetX, targetY, board) {
-        dig ydiff plant targetY - y
-        dig xdiff plant targetX - x
+    dig _move plant tool(p1, p2, board) {
+        dig ydiff plant p2.y - p1.y
+        dig xdiff plant p2.x - p1.x
         if(math.abs(ydiff) != math.abs(xdiff)) {
             harvest no
         }
         dig xDirection plant (xdiff > 0) = (ydiff > 0) ? 1, -1
-        harvest this.check(y, targetY, t(i) board.get(x + (i - y) * xDirection, i))
+        harvest this.check(p1.y, p2.y, t(i) board.get(p1.x + (i - p1.y) * xDirection, i))
     }
     dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
         drawing.rectangle(x + 0.25 * size, y + 0.8 * size, 0.5 * size, 0.1 * size, color, yes)
