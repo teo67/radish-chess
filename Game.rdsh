@@ -23,6 +23,24 @@ dig fillOutRow plant tool(game, row, color) {
     game.registerPiece(new Rook(color), 7, row)
 }
 dig bitOptions plant [1, 4, 8, 16, 24]
+dig alphabet plant "abcdefghijklmnopqrstuvwxyz"
+dig getNextLetter plant tool(letters) {
+    for(dig i plant letters.length - 1, i >= 0, i--) {
+        if(letters[i] < alphabet.length - 1) {
+            letters[i]++
+            end
+        }
+        letters[i] plant 0
+    }
+    letters.push(0)
+}
+dig convertToString plant tool(letters) {
+    dig r plant ""
+    each(letter of letters) {
+        r += alphabet[letter]
+    }
+    harvest r
+}
 dig Game plant class {
     dig protected players
     dig protected board
@@ -108,9 +126,23 @@ dig Game plant class {
         if(this.board.maxWidth = 0 or this.board.maxHeight = 0) {
             end
         }
-        dig imgWidth plant tileWidth * this.board.maxWidth
-        dig imgHeight plant tileWidth * this.board.maxHeight
+        dig imgWidth plant tileWidth * (this.board.maxWidth + 1)
+        dig imgHeight plant tileWidth * (this.board.maxHeight + 3/2)
         dig drawing plant new Drawing(imgWidth, imgHeight, this.pallette)
+        dig letters plant []
+        dig margins plant 0.1
+        dig totalWidth plant (tileWidth / 2) * (1 - 2 * margins)
+        for(dig i plant 0, i < this.board.maxWidth, i++) {
+            getNextLetter(letters)
+            dig str plant convertToString(letters)
+            dig fontSize plant 2 * totalWidth / (3 * str.length - 1)
+            drawing.string(str, (3/2 + i) * tileWidth - totalWidth/2, tileWidth * 3/4 + fontSize/2, fontSize, 1, fontSize / 10, str.length, 3/2 * fontSize)
+        }
+        for(dig i plant 0, i < this.board.maxHeight, i++) {
+            dig str plant "'this.board.maxHeight - i'"
+            dig fontSize plant 2 * totalWidth / (3 * str.length - 1)
+            drawing.string(str, tileWidth/2 - totalWidth/2, (i + 2) * tileWidth + fontSize, fontSize, 1, fontSize / 10, str.length, 3/2 * fontSize)
+        }
         each(row keyto this.board.board) {
             dig _row plant 0 + row
             each(tile keyto this.board.board[row]) {
@@ -119,10 +151,10 @@ dig Game plant class {
                 if(tileItem = null) {
                     continue
                 }
-                drawing.rectangle(_tile * tileWidth, _row * tileWidth, tileWidth, tileWidth, 
+                drawing.rectangle((_tile + 1) * tileWidth, (_row + 3/2) * tileWidth, tileWidth, tileWidth, 
                     (_row+_tile)%2 + 1, yes)
                 if(tileItem) {
-                    tileItem.drawOn(drawing, _tile * tileWidth, _row * tileWidth, tileWidth, tileItem.color + baseColors.length)
+                    tileItem.drawOn(drawing, (_tile + 1) * tileWidth, (_row + 3/2) * tileWidth, tileWidth, tileItem.color + baseColors.length)
                 }
             }
         }
@@ -176,9 +208,13 @@ dig Game plant class {
     }
     dig protected getXInput plant tool {
         holler.write("Enter an x position: ")
-        dig read plant holler.read()
+        dig read plant holler.read().lowercase()
         try {
-            harvest 0 + read
+            dig target plant -1
+            for(dig i plant 0, i < read.length, i++) {
+                target += alphabet.length ** (read.length - i - 1) * (alphabet.indexOf(read[i]) + 1)
+            }
+            harvest target
         } catch {
             harvest -1
         }
@@ -187,7 +223,7 @@ dig Game plant class {
         holler.write("Enter a y position: ")
         dig read plant holler.read()
         try {
-            harvest 0 + read
+            harvest this.board.maxHeight - read
         } catch {
             harvest -1
         }
