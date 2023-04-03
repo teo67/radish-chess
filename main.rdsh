@@ -1,6 +1,3 @@
 dig Game plant import "Game"
-dig Board plant import "Board"
-dig King plant import "pieces/King"
-dig Rook plant import "pieces/Rook"
 
 Game.standard().play()

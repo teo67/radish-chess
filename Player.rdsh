@@ -1,9 +1,14 @@
 dig Position plant import "Position"
 dig Player plant class {
+    ;Stores the RGB color of the player.;
     dig color
+    ;Stores all x coordinates of losing pieces that belong to this player (i.e. kings).;
     dig losersX
+    ;Stores all y coordinates of losing pieces that belong to this player (i.e. kings).;
     dig losersY
+    ;Stores whether this player has already lost the game.;
     dig hasLost
+    ;Stores the number of turns that this player has taken.;
     dig turnsTaken
     constructor plant tool(color) {
         this.color plant color
@@ -12,15 +17,26 @@ dig Player plant class {
         this.hasLost plant no
         this.turnsTaken plant 0
     }
+    ;Add a losing piece to this player's collection (i.e. a new king) and return the index that it will be permanently stored at in losersX and losersY.
+    @x@The starting x position of the loser.@
+    @y@The starting y position of the loser.@;
     dig addLoser plant tool(x, y) {
         this.losersX.push(x)
         this.losersY.push(y)
         harvest this.losersX.length - 1
     }
+    ;Update the position of a given losing piece based on its coordinates.
+    @i@The index of the losing piece in losersX and losersY.@
+    @x@The new x position of the loser.@
+    @y@The new y position of the loser.@;
     dig updateLoser plant tool(i, x, y) {
         this.losersX[i] plant x
         this.losersY[i] plant y
     }
+    ;Check whether it's possible for this player to escape check for a given board. If it's impossible, this leads to either a checkmate or a stalemate.
+    @board@The board to check.@
+    @players@The array of players stored in the Game that is passing the check to the Player.@
+    @myIndex@The index of this player in the array of players being passed in.@;
     dig checkCanEscape plant tool(board, players, myIndex) {
         dig canEscape plant no
         dig player plant this
@@ -44,6 +60,10 @@ dig Player plant class {
         })
         harvest canEscape
     }
+    ;Check whether this player is currently in check on a given board.
+    @board@The board to check.@
+    @players@The array of players stored in the Game that is passing the check to the Player.@
+    @myIndex@The index of this player in the array of players being passed in.@;
     dig checkForCheck plant tool(board, players, myIndex) {
         dig inCheck plant no
         dig player plant this
@@ -60,7 +80,9 @@ dig Player plant class {
         })
         harvest inCheck
     }
+    ;Quickly generate a default color for black in a standard game of chess.;
     dig static Black plant tool new Drawing.RGB(108, 60, 0)
+    ;Quickly generate a default color for white in a standard game of chess.;
     dig static White plant tool new Drawing.RGB(207, 169, 120)
 }
 harvest Player

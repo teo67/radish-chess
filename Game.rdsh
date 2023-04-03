@@ -42,9 +42,13 @@ dig convertToString plant tool(letters) {
     harvest r
 }
 dig Game plant class {
+    ;A (protected) array of players that helps the Game keep track of who has already lost and find checkmates.;
     dig protected players
+    ;A (protected) value storing the Board associated with this Game.;
     dig protected board
+    ;A (protected) value storing the color pallette associated with renderings of this Game, which may be edited depending on player colors.;
     dig protected pallette
+    ;A (protected) boolean to keep track of whether the Game has already ended.;
     dig protected isOver
     constructor plant tool(numPlayers, board) {
         this.players plant []
@@ -71,6 +75,11 @@ dig Game plant class {
             this.pallette.set(i + baseColors.length, color)
         }
     }
+    ;Grab the Game's board so that the user can edit it after creating the Game (this board is the same as the one passed into the Game's constructor).;
+    dig getBoard plant tool this.board
+    ;Set the RGB color of one of the players in the game.
+    @i@Which player to edit. 0 represents the first player, 1 represents the second player, etc.@
+    @color@An RGB value (use Drawing.RGB) to assign to the given player.@;
     dig setPlayerColor plant tool(i, color) {
         if(i >= this.players.length) {
             throw "This game only has 'this.players.length' players!"
@@ -78,6 +87,7 @@ dig Game plant class {
         this.players[i].color plant color
         this.pallette.set(i + baseColors.length, color)
     }
+    ;A protected helper function to generate base colors for custom games.;
     dig protected generateRandomColor plant tool {
         harvest new Drawing.RGB(
             math.floor(math.random() * 256),
@@ -85,6 +95,10 @@ dig Game plant class {
             math.floor(math.random() * 256)
         )
     }
+    ;Add a new piece to the Game. This is the only acceptable way to add pieces, so please do not edit the board directly.
+    @piece@The chess piece to be placed on the board. Extends the Piece class.@
+    @x@The x position (0 through width of board - 1, left to right) of the tile to place the piece on.@
+    @y@The y position (0 through height of board - 1, top to bottom) of the tile to place the piece on.@;
     dig registerPiece plant tool(piece, x, y) {
         if(this.isOver) {
             throw "This game is already over!"
@@ -95,6 +109,7 @@ dig Game plant class {
             res.reset()
         }
     }
+    ;Manually end the game and reset all pieces so that they can be reused (the Game cannot be reused, however).;
     dig finish plant tool() {
         if(this.isOver) {
             throw "This game has already been finished!"
@@ -102,6 +117,9 @@ dig Game plant class {
         this.isOver plant yes
         this.board.forEach(t(x, y, piece) { if(piece) { piece.reset() } })
     }
+    ;Generate a new game of chess according to the standard rules, with a little customization available.
+    @blackOnTop@Determines whether the player that goes second (black) begins on the top of the board or the bottom. Default: top.@
+    @height@Determines the height of the board. Default: 8.@;
     dig static standard plant tool(blackOnTop plant yes, height plant 8) {
         if(height < 4) {
             throw "Standard boards must have at least four rows!"
@@ -122,6 +140,9 @@ dig Game plant class {
         }
         harvest game
     }
+    ;Manually render the game board to a given file. This will render all pieces on the board and labels for the chess coordinate system.
+    @tileWidth@The width, in pixels, of a single tile on the board.@
+    @outfile@The address of the file for the image to be written to.@;
     dig render plant tool(tileWidth, outfile) {
         if(this.board.maxWidth = 0 or this.board.maxHeight = 0) {
             end
@@ -160,6 +181,9 @@ dig Game plant class {
         }
         drawing.render(outfile)
     }
+    ;A (protected) helper function to help with validating user input.
+    @requirePiece@Whether to require that a piece be on the tile that is chosen.@
+    @requireTeam@Whether to require the piece to be on the given player's team.@;
     dig protected getAndValidatePosition plant tool(requirePiece plant no, requireTeam plant -1) {
         dig x plant this.getXInput()
         dig y plant this.getYInput()
@@ -179,6 +203,8 @@ dig Game plant class {
         }
         harvest null
     }
+    ;A (protected) helper function to cycle through player turns while playing the game.
+    @current@The last player who took a turn.@;
     dig protected iteratePlayer plant tool(current) {
         dig next plant current + 1
         while(this.players[next % this.players.length].hasLost) {
@@ -186,6 +212,9 @@ dig Game plant class {
         }
         harvest next % this.players.length
     }
+    ;Play the Game! This function will continue to receive user input and take turns until someone wins or a draw is reached.
+    @tileWidth@The width, in pixels, of a single tile. Defaults to 200.@
+    @outfile@The address to the file for the image to be written to. Defaults to ./chess.@;
     dig play plant tool(tileWidth plant 200, outfile plant "./chess") {
         if(this.isOver) {
             holler("This game is already over!")
@@ -206,6 +235,7 @@ dig Game plant class {
         }
         holler("Game Over!")
     }
+    ;A (protected) helper function for getting an x value in the chess coordinate system based on user input.;
     dig protected getXInput plant tool {
         holler.write("Enter an x position: ")
         dig read plant holler.read().lowercase()
@@ -219,6 +249,7 @@ dig Game plant class {
             harvest -1
         }
     }
+    ;A (protected) helper function for getting a y value in the chess coordinate system based on user input.;
     dig protected getYInput plant tool {
         holler.write("Enter a y position: ")
         dig read plant holler.read()
@@ -228,6 +259,10 @@ dig Game plant class {
             harvest -1
         }
     }
+    ;Manually take a specific player's turn while the Game is running. This function is also called to internally when playing the Game.
+    @teamNumber@Which player to take the turn for. 0 is for the first player, 1 is for the second player, etc.@
+    @tileWidth@The width, in pixels, of a single tile on the board. Defaults to 200.@
+    @outfile@The address to the file for the image of the board to be written to. Defaults to ./chess.@;
     dig takeTurn plant tool(teamNumber, tileWidth plant 200, outfile plant "./chess") {
         if(this.isOver) {
             holler("This game is already over!")

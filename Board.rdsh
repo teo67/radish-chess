@@ -1,12 +1,17 @@
 dig Board plant class {
+    ;Stores a 2-dimensional array-ish object that keeps track of all empty and filled squares on the board.;
     dig board
+    ;Keeps track of the maximum width assigned to this board.;
     dig maxWidth
+    ;Keeps track of the maximum height assigned to this board.;
     dig maxHeight
     constructor plant tool(maxWidth, maxHeight, board plant []) {
         this.board plant board
         this.maxHeight plant maxHeight
         this.maxWidth plant maxWidth
     }
+    ;Take a given function and call it for every tile on the board.
+    @lambda@A function that takes in three parameters - x position, y position, and the piece at (x, y) - that is called for every tile on the board. If this function every returns true, forEach will short circuit.@;
     dig forEach plant tool(lambda) {
         each(y keyto this.board) {
             each(x keyto this.board[y]) {
@@ -16,7 +21,13 @@ dig Board plant class {
             }
         }
     }
+    ;Make sure that a given point (x, y) is inside the board's maximum width and height.
+    @x@The x position to be checked.@
+    @y@The y position to be checked.@;
     dig protected verifyPoint plant tool(x, y) {
+        if(x < 0 or y < 0) {
+            throw "All x and y positions must be nonnegative!"
+        }
         if(x >= this.maxWidth) {
             throw "'x' is outside the maximum width ('this.maxWidth') declared for this board!"
         }
@@ -24,6 +35,9 @@ dig Board plant class {
             throw "'y' is outside the maximum height ('this.maxHeight') declared for this board!"
         }
     }
+    ;Instantiate a new row of empty tiles on the board at a given y position and with a given length.
+    @rownum@The y position of the new row, where 0 is the top of the board.@
+    @length@The length of the new row, which must be less than or equal to the board's maximum length.@;
     dig setStandardRow plant tool(rownum, length) {
         this.verifyPoint(length - 1, rownum)
         this.board[rownum] plant []
@@ -31,6 +45,13 @@ dig Board plant class {
             this.board[rownum].push(no)
         }
     }
+    ;Move a piece on the board from one position to another. This is to be called internally by the Game and not by the user.
+    @p1@The starting position of the piece.@
+    @p2@The ending position of the piece.@
+    @turnNumber@How many turns the player in question has taken at this point in the Game.@
+    @players@The array of players that is internally stored by the Game.@
+    @isHuman@Whether this function is being called for the purposes of checking for checkmate or for actually moving a piece.@
+    @callback@An optional lambda function to be called once the piece is moved. It takes in no parameters, and if it returns true, the piece is moved back to its original position.@;
     dig movePiece plant tool(p1, p2, turnNumber, players, isHuman, callback plant null) {
         this.board[p1.y][p1.x] plant no
         this.board[p2.y][p2.x] plant p1.piece
@@ -46,6 +67,19 @@ dig Board plant class {
             p1.piece.postMove(p1, p2, this, players, isHuman)
         }
     }
+    ;Delete a tile from the board and reset any piece that may be occupying it.
+    @x@The x position of the tile to be removed.@
+    @y@The y position of the tile to be removed.@;
+    dig removeTile plant tool(x, y) {
+        dig on plant this.get(x, y)
+        if(on) {
+            on.reset()
+        }
+        this.board[y].delete(x)
+    }
+    ;Check what's on a specific tile on the board. This function returns null if the tile doesn't exist, false if it's empty, and a Piece object if it is filled with a piece.
+    @x@The x position of the tile to check.@
+    @y@The y position of the tile to check.@;
     dig get plant tool(x, y) {
         this.verifyPoint(x, y)
         dig row plant this.board.get(y)
@@ -54,6 +88,10 @@ dig Board plant class {
         }
         harvest row.get(x)
     }
+    ;Edit what's on a specific tile of the board and create the tile if it doesn't exist already. This is to be used internally and not by the user.
+    @x@The x position of the targeted tile.@
+    @y@The y position of the targeted tile.@
+    @item@The item to place on the tile in question. Defaults to creating an empty tile.@;
     dig set plant tool(x, y, item plant no) {
         this.verifyPoint(x, y)
         if(this.board.get(y) = null) {
@@ -63,6 +101,9 @@ dig Board plant class {
         this.board[y][x] plant item
         harvest prev
     }
+    ;Quickly make a new rectangular Board.
+    @width@The width of the board being made. Default: 8.@
+    @height@The height of the board being made. Default: 8.@;
     dig static rectangle plant tool(width plant 8, height plant 8) {
         dig board plant new Board(width, height)
         for(dig i plant 0, i < height, i++) {
@@ -70,6 +111,8 @@ dig Board plant class {
         }
         harvest board
     }
+    ;Quickly make a new square Board.
+    @sideLength@The side length of the board being made. Default: 8.@;
     dig static square plant tool(sideLength plant 8) rectangle(sideLength, sideLength)
 }
 harvest Board
