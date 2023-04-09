@@ -17,5 +17,6 @@ harvest class after Piece {
     dig _onRegister plant tool null
     dig onRegister plant tool(players, x, y) {
         this.index plant players[this.color].addLoser(x, y)
+        this._onRegister(players, x, y)
     }
 }

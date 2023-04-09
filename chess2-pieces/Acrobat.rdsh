@@ -1,0 +1,39 @@
+dig Piece plant import "../pieces/Piece"
+harvest class after Piece {
+    dig magnitude plant 1
+    constructor plant tool(color) super(color)
+    dig onRegister plant tool {
+        this.magnitude plant 1
+    }
+    dig postMove plant tool(p1, p2, _, __, isHuman) {
+        if(isHuman) {
+            if(math.abs(p1.x - p2.x) > 1 or math.abs(p1.y - p2.y) > 1) {
+                this.magnitude plant 1
+            } elseif(this.magnitude < 4) {
+                this.magnitude++
+            }
+        }
+    }
+    dig _move plant tool(p1, p2, board) {
+        dig xdiff plant math.abs(p1.x - p2.x)
+        dig ydiff plant math.abs(p1.y - p2.y)
+        dig nonzerodiff plant this.magnitude + 1
+        if(xdiff = 0) {
+            nonzerodiff plant ydiff
+        } elseif(ydiff = 0) {
+            nonzerodiff plant xdiff
+        }
+        if(nonzerodiff > this.magnitude) {
+            harvest no
+        }
+        harvest yes
+    }
+    dig drawOn plant tool(drawing p new Drawing(), x, y, size, color) {
+        drawing.polygon([x + 0.1*size, x + 0.4*size, x + 0.6*size, x + 0.9*size], [y + 0.8*size, y + 0.1*size, y + 0.1*size, y + 0.8*size], color, yes)
+        dig leftMost plant (0.5 - 0.1*(this.magnitude - 1)) * size + x
+        repeat this.magnitude {
+            drawing.ellipse(leftMost, y + 0.9 * size, 0.1 * size, 0.1 * size, color, yes)
+            leftMost += 0.2 * size
+        }
+    }
+}

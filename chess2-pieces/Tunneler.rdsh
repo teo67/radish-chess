@@ -1,0 +1,28 @@
+dig Piece plant import "../pieces/Piece"
+dig Tunnel plant import "Tunnel"
+harvest class after Piece {
+    constructor plant tool(color) super(color)
+    dig protected isTunnel plant tool(a) {
+        harvest a and (type a) = Tunnel.prototype and a.color = this.color
+    }
+    dig protected checkForTunnel plant tool(x, y, board) {
+        dig left plant x = 0 ? null, board.get(x - 1, y)
+        dig right plant x = board.maxWidth - 1 ? null, board.get(x + 1, y)
+        dig up plant y = 0 ? null, board.get(x, y - 1)
+        dig down plant y = board.maxHeight - 1 ? null, board.get(x, y + 1)
+        harvest this.isTunnel(left) or this.isTunnel(right) or this.isTunnel(up) or this.isTunnel(down)
+    }
+    dig _move plant tool(p1, p2, board) {
+        harvest this.checkForTunnel(p1.x, p1.y, board) and this.checkForTunnel(p2.x, p2.y, board)
+    }
+    dig drawOn plant tool(drawing, x, y, size, color) {
+        drawing.rectangle(x + 0.2*size, y + 0.8*size, 0.6*size, 0.1*size, color, yes)
+        drawing.polygon([x + 0.3*size, x + 0.4*size, x + 0.6*size, x + 0.7*size], [y + 0.8*size, y + 0.4*size, y + 0.4*size, y + 0.8*size], color, yes)
+        drawing.ellipse(x + 0.5*size, y + 0.35*size, 0.3*size, 0.3*size, color, yes)
+        drawing.polygon(
+            [x + 0.05*size, x + 0.05*size, x + 0.1*size, x + 0.2*size, x + 0.25*size, x + 0.25*size, x + 0.2*size, x + 0.2*size, x + 0.1*size, x + 0.1*size],
+            [y + 0.25*size, y + 0.1*size, y + 0.05*size, y + 0.05*size, y + 0.1*size, y + 0.25*size, y + 0.25*size, y + 0.1*size, y + 0.1*size, y + 0.25*size],
+            color, yes
+        )
+    }
+}

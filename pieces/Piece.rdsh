@@ -58,7 +58,7 @@ harvest class {
     @players@The array of players used by the Game.@;
     dig move plant tool(p1, p2, board, players) {
         dig piece plant board.get(p2.x, p2.y)
-        if(piece = null or (piece and piece.color = this.color) or (p1.x = p1.x and p1.y = p2.y)) {
+        if(piece = null or (piece and piece.color = this.color) or (p1.x = p2.x and p1.y = p2.y)) {
             harvest no
         }
         harvest this._move(p1, p2, board, players)

@@ -1,0 +1,43 @@
+dig Game plant import "Game"
+dig Player plant import "Player"
+dig Board plant import "Board"
+dig Acrobat plant import "chess2-pieces/Acrobat"
+dig Flag plant import "chess2-pieces/Flag"
+dig Tunneler plant import "chess2-pieces/Tunneler"
+dig Tunnel plant import "chess2-pieces/Tunnel"
+dig Hopper plant import "chess2-pieces/Hopper"
+dig Sun plant import "chess2-pieces/Sun"
+dig Tether plant import "chess2-pieces/Tether"
+dig setUpOuterRow plant tool(game, y, player, dir) {
+    game.registerPiece(new Hopper(player, dir), 0, y)
+    game.registerPiece(new Hopper(player, dir), 2, y)
+    game.registerPiece(new Hopper(player, dir), 3, y)
+    game.registerPiece(new Hopper(player, dir), 5, y)
+    game.registerPiece(new Hopper(player, dir), 6, y)
+    game.registerPiece(new Hopper(player, dir), 8, y)
+    game.registerPiece(new Tunnel(player), 1, y)
+    game.registerPiece(new Tunnel(player), 4, y)
+    game.registerPiece(new Tunnel(player), 7, y)
+}
+dig setUpInnerRow plant tool(game, y, player) {
+    game.registerPiece(new Tunneler(player), 1, y)
+    game.registerPiece(new Tunneler(player), 7, y)
+    game.registerPiece(new Flag(player), 2, y)
+    game.registerPiece(new Flag(player), 6, y)
+    game.registerPiece(new Acrobat(player), 0, y)
+    game.registerPiece(new Acrobat(player), 8, y)
+    game.registerPiece(new Sun(player), 4, y)
+    game.registerPiece(new Tether(player), 3, y)
+    game.registerPiece(new Tether(player), 5, y)
+}
+harvest tool {
+    dig board plant Board.square(9)
+    dig game plant new Game(2, board)
+    game.setPlayerColor(0, Player.White())
+    game.setPlayerColor(1, Player.Black())
+    setUpInnerRow(game, 0, 1)
+    setUpOuterRow(game, 1, 1, Hopper.Direction.DOWN)
+    setUpInnerRow(game, 8, 0)
+    setUpOuterRow(game, 7, 0, Hopper.Direction.UP)
+    harvest game
+}

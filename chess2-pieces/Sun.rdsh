@@ -1,0 +1,23 @@
+dig Piece plant import "../pieces/Piece"
+dig Bishop plant import "../pieces/Bishop"
+harvest class after Piece {
+    constructor plant tool(color) {
+        super(color)
+    }
+    dig _move plant Bishop.prototype._move
+    dig drawOn plant tool(drawing, x, y, size, color) {
+        drawing.ellipse(x + 0.5 * size, y + 0.5 * size, 0.45 * size, 0.45 * size, color, yes)
+        dig numRays plant 7
+        dig xs plant []
+        dig ys plant []
+        for(dig i plant 0, i < numRays, i++) {
+            dig theta plant 2*i*math.constants.pi / numRays
+            xs.push(x + (0.5 + 0.4 * math.trig.cos(theta)) * size)
+            ys.push(y + (0.5 + 0.4 * math.trig.sin(theta)) * size)
+            theta += math.constants.pi / numRays
+            xs.push(x + (0.5 + 0.2 * math.trig.cos(theta)) * size)
+            ys.push(y + (0.5 + 0.2 * math.trig.sin(theta)) * size)
+        }
+        drawing.polygon(xs, ys, color, yes)
+    }
+}

@@ -1,0 +1,29 @@
+dig Piece plant import "../pieces/Piece"
+dig Tether plant class after Piece {
+    constructor plant tool(color) super(color)
+    dig protected isTether plant tool(a) {
+        harvest a and (type a) = Tether.prototype and a.color = this.color
+    }
+    dig protected checkForTether plant tool(x, y, board) {
+        dig left plant x < 2 ? null, board.get(x - 2, y)
+        dig right plant x > board.maxWidth - 3 ? null, board.get(x + 2, y)
+        dig up plant y < 2 ? null, board.get(x, y - 2)
+        dig down plant y > board.maxHeight - 3 ? null, board.get(x, y + 2)
+        harvest this.isTether(left) or this.isTether(right) or this.isTether(up) or this.isTether(down)
+    }
+    dig _move plant tool(p1, p2, board) {
+        harvest this.checkForTether(p1.x, p1.y, board) and this.checkForTether(p2.x, p2.y, board)
+    }
+    dig drawOn plant tool(drawing, x, y, size, color) {
+        drawing.rectangle(x + 0.2*size, y + 0.45*size, 0.25*size, 0.1*size, color, yes)
+        drawing.rectangle(x + 0.55*size, y + 0.45*size, 0.25*size, 0.1*size, color, yes)
+        drawing.rectangle(x + 0.45*size, y + 0.2*size, 0.1*size, 0.25*size, color, yes)
+        drawing.rectangle(x + 0.45*size, y + 0.55*size, 0.1*size, 0.25*size, color, yes)
+
+        drawing.rectangle(x + 0.05*size, y + 0.4*size, 0.1*size, 0.2*size, color, yes)
+        drawing.rectangle(x + 0.85*size, y + 0.4*size, 0.1*size, 0.2*size, color, yes)
+        drawing.rectangle(x + 0.4*size, y + 0.05*size, 0.2*size, 0.1*size, color, yes)
+        drawing.rectangle(x + 0.4*size, y + 0.85*size, 0.2*size, 0.1*size, color, yes)
+    }
+}
+harvest Tether
